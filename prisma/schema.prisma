@@ -1,0 +1,159 @@
+// ZapatoFlex - Modelo de datos
+// Base de datos SQLite para prototipo (producción: PostgreSQL en Vercel/Turso)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  USUARIO
+  ADMIN
+}
+
+enum CategoriaProducto {
+  DEPORTIVO
+  CASUAL
+  FORMAL
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  CONFIRMADO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+enum EstadoPago {
+  PENDIENTE
+  SIMULADO
+  APROBADO
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nombre    String
+  passwordHash String
+  rol       Rol      @default(USUARIO)
+  createdAt DateTime @default(now())
+  carrito   Carrito?
+  pedidos   Pedido[]
+}
+
+// --- Catálogos ---
+
+model Marca {
+  id        String     @id @default(cuid())
+  nombre    String     @unique
+  productos Producto[]
+}
+
+model Color {
+  id        String     @id @default(cuid())
+  nombre    String     @unique
+  productos Producto[]
+}
+
+model Talla {
+  id        String          @id @default(cuid())
+  valor     String          @unique
+  variantes ProductoTalla[]
+}
+
+// --- Producto ---
+
+model Producto {
+  id          String            @id @default(cuid())
+  nombre      String
+  descripcion String?
+  precio      Float
+  categoria   CategoriaProducto
+  marcaId     String
+  marca       Marca             @relation(fields: [marcaId], references: [id])
+  colorId     String
+  color       Color             @relation(fields: [colorId], references: [id])
+  createdAt   DateTime          @default(now())
+  imagenes    ImagenProducto[]
+  variantes   ProductoTalla[]
+  lineasCarrito LineaCarrito[]
+  lineasPedido  LineaPedido[]
+}
+
+model ProductoTalla {
+  id         String   @id @default(cuid())
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  tallaId    String
+  talla      Talla    @relation(fields: [tallaId], references: [id])
+  stock      Int      @default(0)
+
+  @@unique([productoId, tallaId])
+}
+
+model ImagenProducto {
+  id         String   @id @default(cuid())
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  url        String
+  orden      Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+// --- Carrito ---
+
+model Carrito {
+  id        String        @id @default(cuid())
+  usuarioId String        @unique
+  usuario   Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  items     LineaCarrito[]
+}
+
+model LineaCarrito {
+  id         String   @id @default(cuid())
+  carritoId  String
+  carrito    Carrito  @relation(fields: [carritoId], references: [id], onDelete: Cascade)
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  cantidad   Int      @default(1)
+  talla      String?
+}
+
+// --- Pedido ---
+
+model Pedido {
+  id          String      @id @default(cuid())
+  usuarioId   String
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id])
+  estado      EstadoPedido @default(PENDIENTE)
+  total       Float
+  metodoPago  String      @default("CONTRAENTREGA")
+  createdAt   DateTime    @default(now())
+  lineas      LineaPedido[]
+  pago        Pago?
+}
+
+model LineaPedido {
+  id             String   @id @default(cuid())
+  pedidoId       String
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId     String
+  producto       Producto @relation(fields: [productoId], references: [id])
+  cantidad       Int
+  precioUnitario Float
+  talla          String?
+}
+
+model Pago {
+  id        String     @id @default(cuid())
+  pedidoId  String     @unique
+  pedido    Pedido     @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  metodo    String     @default("CONTRAENTREGA")
+  estado    EstadoPago @default(SIMULADO)
+  createdAt DateTime   @default(now())
+}
