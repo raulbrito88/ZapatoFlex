@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+dist/
+
+# Env (no subir credenciales)
+.env
+.env.local
+.env.*.local
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Debug / IDE
+npm-debug.log*
+.DS_Store
+*.log
+.idea
+.vscode
+
+# Uploads (imágenes locales)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Vercel
+.vercel
