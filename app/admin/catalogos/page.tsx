@@ -2,6 +2,7 @@ import Link from "next/link";
 import { obtenerUsuarioActual } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { CatalogoSection } from "./catalogo-section";
+import { SubcategoriaSection } from "./subcategoria-section";
 
 export default async function AdminCatalogosPage() {
   const usuario = await obtenerUsuarioActual();
@@ -13,11 +14,18 @@ export default async function AdminCatalogosPage() {
     );
   }
 
-  const [marcas, colores, tallas] = await Promise.all([
-    prisma.marca.findMany({ orderBy: { nombre: "asc" } }),
-    prisma.color.findMany({ orderBy: { nombre: "asc" } }),
-    prisma.talla.findMany({ orderBy: { valor: "asc" } }),
-  ]);
+  const [categorias, subcategorias, marcas, colores, tallas, generos] =
+    await Promise.all([
+      prisma.categoria.findMany({ orderBy: { nombre: "asc" } }),
+      prisma.subcategoria.findMany({
+        orderBy: { nombre: "asc" },
+        include: { categoria: true },
+      }),
+      prisma.marca.findMany({ orderBy: { nombre: "asc" } }),
+      prisma.color.findMany({ orderBy: { nombre: "asc" } }),
+      prisma.talla.findMany({ orderBy: { valor: "asc" } }),
+      prisma.genero.findMany({ orderBy: { nombre: "asc" } }),
+    ]);
 
   return (
     <div className="container">
@@ -27,6 +35,21 @@ export default async function AdminCatalogosPage() {
       </p>
 
       <div style={{ display: "grid", gap: "1.5rem" }}>
+        <CatalogoSection
+          titulo="Categorías de producto"
+          items={categorias.map((c) => ({ id: c.id, label: c.nombre }))}
+          tipo="categoria"
+          placeholder="Ej: Ropa, Hogar..."
+          inputName="nombre"
+        />
+        <SubcategoriaSection
+          subcategorias={subcategorias.map((s) => ({
+            id: s.id,
+            nombre: s.nombre,
+            categoriaNombre: s.categoria.nombre,
+          }))}
+          categorias={categorias.map((c) => ({ id: c.id, nombre: c.nombre }))}
+        />
         <CatalogoSection
           titulo="Marcas"
           items={marcas.map((m) => ({ id: m.id, label: m.nombre }))}
@@ -47,6 +70,13 @@ export default async function AdminCatalogosPage() {
           tipo="talla"
           placeholder="Ej: 45"
           inputName="valor"
+        />
+        <CatalogoSection
+          titulo="Géneros"
+          items={generos.map((g) => ({ id: g.id, label: g.nombre }))}
+          tipo="genero"
+          placeholder="Ej: Hombre, Mujer, Niños..."
+          inputName="nombre"
         />
       </div>
     </div>

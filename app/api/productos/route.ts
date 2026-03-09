@@ -4,7 +4,8 @@ import { productoRepository } from "@/lib/repositories/producto-repository";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  const categoria = searchParams.get("categoria") as any | null;
+  const categoriaId = searchParams.get("categoria") ?? undefined;
+  const generoId = searchParams.get("genero") ?? undefined;
   const marca = searchParams.get("marca") ?? undefined;
   const color = searchParams.get("color") ?? undefined;
   const talla = searchParams.get("talla") ?? undefined;
@@ -13,7 +14,8 @@ export async function GET(request: Request) {
 
   try {
     const productos = await productoRepository.findMany({
-      categoria: categoria || undefined,
+      categoriaId,
+      generoId,
       marca,
       color,
       talla,

@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { obtenerUsuarioActual } from "@/lib/auth";
+import { obtenerConfiguracionSitio } from "@/lib/configuracion-sitio";
 
 export default async function HomePage() {
-  const usuario = await obtenerUsuarioActual();
+  const [usuario, config] = await Promise.all([
+    obtenerUsuarioActual(),
+    obtenerConfiguracionSitio(),
+  ]);
 
   return (
     <>
       <div className="hero">
         <div className="container">
-          <h1>
-            Tu estilo, tu <span className="accent">comodidad</span>
-          </h1>
-          <p>
-            Descubre calzado deportivo, casual y formal con envios a todo Colombia.
-          </p>
+          <h1>{config.heroTitulo}</h1>
+          <p>{config.heroDescripcion}</p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/tienda" className="btn btn-primary btn-lg">
               Explorar catalogo

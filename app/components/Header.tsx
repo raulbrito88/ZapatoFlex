@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { obtenerUsuarioActual } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { obtenerConfiguracionSitio } from "@/lib/configuracion-sitio";
 import { CerrarSesionBtn } from "./CerrarSesionBtn";
 import { ThemeToggle } from "./ThemeToggle";
 
 export async function Header() {
-  const usuario = await obtenerUsuarioActual();
+  const [usuario, config] = await Promise.all([
+    obtenerUsuarioActual(),
+    obtenerConfiguracionSitio(),
+  ]);
 
   let cantidadCarrito = 0;
   if (usuario) {
@@ -22,12 +26,26 @@ export async function Header() {
     <header className="header">
       <div className="container">
         <Link href="/" className="logo">
-          <svg className="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M2 18c0-1 1-3 3-4 2-1 5-1.5 7-1.5s5 .5 7 1.5c2 1 3 3 3 4v1H2v-1z" />
-            <path d="M4 14c1-3 3-6 5.5-7.5C12 5 15 5 17 6c1.5.8 2.5 2 3 3.5" />
-            <path d="M7 14.5c1-1.5 3-2.5 5-2.5" />
-          </svg>
-          <span className="logo-text">Zapato<strong>Flex</strong></span>
+          {config.logoUrl ? (
+            <img src={config.logoUrl} alt="Logo" className="logo-img" />
+          ) : (
+            <>
+              <svg
+                className="logo-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 18c0-1 1-3 3-4 2-1 5-1.5 7-1.5s5 .5 7 1.5c2 1 3 3 3 4v1H2v-1z" />
+                <path d="M4 14c1-3 3-6 5.5-7.5C12 5 15 5 17 6c1.5.8 2.5 2 3 3.5" />
+                <path d="M7 14.5c1-1.5 3-2.5 5-2.5" />
+              </svg>
+              <span className="logo-text">Zapato<strong>Flex</strong></span>
+            </>
+          )}
         </Link>
         <nav className="nav">
           <ThemeToggle />
@@ -42,7 +60,12 @@ export async function Header() {
           {usuario ? (
             <>
               <span className="user-name">{usuario.nombre}</span>
-              {usuario.rol === "ADMIN" && <Link href="/admin/productos">Admin</Link>}
+              {usuario.rol === "ADMIN" && (
+                <>
+                  <Link href="/admin/productos">Admin</Link>
+                  <Link href="/admin/configuracion">Configurar sitio</Link>
+                </>
+              )}
               <CerrarSesionBtn />
             </>
           ) : (

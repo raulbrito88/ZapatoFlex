@@ -1,14 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const CATEGORIAS = [
-  { value: "", label: "Todos" },
-  { value: "DEPORTIVO", label: "Deportivos" },
-  { value: "CASUAL", label: "Casuales" },
-  { value: "FORMAL", label: "Formales" },
-];
+type CategoriaOption = { id: string; nombre: string };
+type GeneroOption = { id: string; nombre: string };
 
 const TALLAS = ["36", "37", "38", "39", "40", "41", "42", "43", "44"];
 
@@ -17,17 +13,41 @@ export function BarraBusqueda() {
   const searchParams = useSearchParams();
   const [busqueda, setBusqueda] = useState(searchParams.get("busqueda") || "");
   const categoriaActual = searchParams.get("categoria") || "";
+  const generoActual = searchParams.get("genero") || "";
   const tallaActual = searchParams.get("talla") || "";
   const [marca, setMarca] = useState(searchParams.get("marca") || "");
   const [color, setColor] = useState(searchParams.get("color") || "");
   const [precioMin, setPrecioMin] = useState(searchParams.get("precioMin") || "");
   const [precioMax, setPrecioMax] = useState(searchParams.get("precioMax") || "");
+  const [categorias, setCategorias] = useState<CategoriaOption[]>([]);
+  const [generos, setGeneros] = useState<GeneroOption[]>([]);
+
+  useEffect(() => {
+    async function cargarFiltros() {
+      try {
+        const [resCat, resGen] = await Promise.all([
+          fetch("/api/categorias"),
+          fetch("/api/generos"),
+        ]);
+        if (resCat.ok) {
+          setCategorias(await resCat.json());
+        }
+        if (resGen.ok) {
+          setGeneros(await resGen.json());
+        }
+      } catch {
+        // silencio: si falla, simplemente no se muestran filtros dinámicos
+      }
+    }
+    cargarFiltros();
+  }, []);
 
   function buildUrl(overrides: Record<string, string>) {
     const params = new URLSearchParams();
     const values: Record<string, string> = {
       busqueda,
       categoria: categoriaActual,
+      genero: generoActual,
       talla: tallaActual,
       marca,
       color,
@@ -50,6 +70,10 @@ export function BarraBusqueda() {
     router.push(buildUrl({ categoria: cat }));
   }
 
+  function handleGenero(id: string) {
+    router.push(buildUrl({ genero: id }));
+  }
+
   function handleTalla(t: string) {
     router.push(buildUrl({ talla: tallaActual === t ? "" : t }));
   }
@@ -58,7 +82,15 @@ export function BarraBusqueda() {
     router.push(buildUrl({}));
   }
 
-  const hayFiltrosActivos = busqueda || categoriaActual || tallaActual || marca || color || precioMin || precioMax;
+  const hayFiltrosActivos =
+    busqueda ||
+    categoriaActual ||
+    generoActual ||
+    tallaActual ||
+    marca ||
+    color ||
+    precioMin ||
+    precioMax;
 
   function limpiarFiltros() {
     setBusqueda("");
@@ -88,14 +120,43 @@ export function BarraBusqueda() {
 
       {/* Categorías */}
       <div className="search-filters">
-        {CATEGORIAS.map((cat) => (
+        <button
+          type="button"
+          className={`filter-chip${categoriaActual === "" ? " active" : ""}`}
+          onClick={() => handleCategoria("")}
+        >
+          Todos
+        </button>
+        {categorias.map((cat) => (
           <button
-            key={cat.value}
+            key={cat.id}
             type="button"
-            className={`filter-chip${categoriaActual === cat.value ? " active" : ""}`}
-            onClick={() => handleCategoria(cat.value)}
+            className={`filter-chip${categoriaActual === cat.id ? " active" : ""}`}
+            onClick={() => handleCategoria(cat.id)}
           >
-            {cat.label}
+            {cat.nombre}
+          </button>
+        ))}
+      </div>
+
+      {/* Género */}
+      <div className="search-filters" style={{ marginTop: "0.5rem" }}>
+        <span className="filter-label">Género:</span>
+        <button
+          type="button"
+          className={`filter-chip filter-chip-sm${generoActual === "" ? " active" : ""}`}
+          onClick={() => handleGenero("")}
+        >
+          Todos
+        </button>
+        {generos.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            className={`filter-chip filter-chip-sm${generoActual === g.id ? " active" : ""}`}
+            onClick={() => handleGenero(g.id)}
+          >
+            {g.nombre}
           </button>
         ))}
       </div>

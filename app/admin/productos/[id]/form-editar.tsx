@@ -11,7 +11,9 @@ type Producto = {
   nombre: string;
   descripcion: string | null;
   precio: number;
-  categoria: string;
+  categoriaId: string | null;
+  subcategoriaId: string | null;
+  generoId: string | null;
   marcaId: string;
   colorId: string;
   imagenes: { id: string; url: string; orden: number }[];
@@ -20,11 +22,17 @@ type Producto = {
 
 export function FormEditarProducto({
   producto,
+  categorias,
+  subcategorias,
+  generos,
   marcas,
   colores,
   tallas,
 }: {
   producto: Producto;
+  categorias: CatalogoItem[];
+  subcategorias: CatalogoItem[];
+  generos: CatalogoItem[];
   marcas: CatalogoItem[];
   colores: CatalogoItem[];
   tallas: CatalogoItem[];
@@ -119,10 +127,23 @@ export function FormEditarProducto({
       </div>
       <div className="form-group">
         <label>Categoría</label>
-        <select name="categoria" defaultValue={producto.categoria} required>
-          <option value="DEPORTIVO">Deportivo</option>
-          <option value="CASUAL">Casual</option>
-          <option value="FORMAL">Formal</option>
+        <select name="categoriaId" defaultValue={producto.categoriaId ?? ""} required>
+          <option value="">Seleccionar categoría...</option>
+          {categorias.map((c) => (
+            <option key={c.id} value={c.id}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Subcategoría</label>
+        <select
+          name="subcategoriaId"
+          defaultValue={producto.subcategoriaId ?? ""}
+        >
+          <option value="">Sin subcategoría</option>
+          {subcategorias.map((s) => (
+            <option key={s.id} value={s.id}>{s.label}</option>
+          ))}
         </select>
       </div>
       <div className="form-group">
@@ -140,6 +161,15 @@ export function FormEditarProducto({
           <option value="">Seleccionar color...</option>
           {colores.map((c) => (
             <option key={c.id} value={c.id}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Género</label>
+        <select name="generoId" defaultValue={producto.generoId ?? ""}>
+          <option value="">Todos</option>
+          {generos.map((g) => (
+            <option key={g.id} value={g.id}>{g.label}</option>
           ))}
         </select>
       </div>

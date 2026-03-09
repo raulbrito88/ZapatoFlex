@@ -1,12 +1,12 @@
 import { Suspense } from "react";
-import { productoRepository } from "@/lib/repositories/producto-repository";
-import { FiltrosProducto } from "@/lib/repositories/producto-repository";
+import { productoRepository, FiltrosProducto } from "@/lib/repositories/producto-repository";
 import { AgregarAlCarritoBtn } from "./agregar-carrito";
 import { CarruselProducto } from "./carrusel-producto";
 import { BarraBusqueda } from "./barra-busqueda";
 
 type SearchParams = {
   categoria?: string;
+  genero?: string;
   marca?: string;
   color?: string;
   talla?: string;
@@ -15,19 +15,14 @@ type SearchParams = {
   busqueda?: string;
 };
 
-const BADGE_CLASS: Record<string, string> = {
-  DEPORTIVO: "badge badge-deportivo",
-  CASUAL: "badge badge-casual",
-  FORMAL: "badge badge-formal",
-};
-
 export default async function TiendaPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
   const filtros: FiltrosProducto = {};
-  if (searchParams.categoria) filtros.categoria = searchParams.categoria as "DEPORTIVO" | "CASUAL" | "FORMAL";
+  if (searchParams.categoria) filtros.categoriaId = searchParams.categoria;
+  if (searchParams.genero) filtros.generoId = searchParams.genero;
   if (searchParams.marca) filtros.marca = searchParams.marca;
   if (searchParams.color) filtros.color = searchParams.color;
   if (searchParams.talla) filtros.talla = searchParams.talla;
@@ -39,7 +34,7 @@ export default async function TiendaPage({
 
   return (
     <div className="container">
-      <h1 className="mb-2">Catalogo</h1>
+      <h1 className="mb-2">Catálogo</h1>
       <Suspense fallback={null}>
         <BarraBusqueda />
       </Suspense>
@@ -59,10 +54,16 @@ export default async function TiendaPage({
                 />
                 <div className="card-body">
                   <div style={{ marginBottom: "0.5rem" }}>
-                    <span className={BADGE_CLASS[p.categoria] || "badge"}>{p.categoria}</span>
+                    <span className="badge">
+                      {p.categoria?.nombre ?? "Sin categoría"}
+                      {p.subcategoria ? ` · ${p.subcategoria.nombre}` : ""}
+                    </span>
                   </div>
                   <h3 className="card-title">{p.nombre}</h3>
-                  <p className="card-meta">{p.marca.nombre} · {p.color.nombre}</p>
+                  <p className="card-meta">
+                    {p.marca.nombre} · {p.color.nombre}
+                    {p.genero ? ` · ${p.genero.nombre}` : ""}
+                  </p>
                   {tallasDisponibles.length > 0 && (
                     <p className="card-meta">Tallas: {tallasDisponibles.join(", ")}</p>
                   )}

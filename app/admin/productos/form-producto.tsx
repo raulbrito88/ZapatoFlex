@@ -6,10 +6,16 @@ import { crearProducto } from "@/app/actions/admin";
 type CatalogoItem = { id: string; label: string };
 
 export function FormProducto({
+  categorias,
+  subcategorias,
+  generos,
   marcas,
   colores,
   tallas,
 }: {
+  categorias: CatalogoItem[];
+  subcategorias: CatalogoItem[];
+  generos: CatalogoItem[];
   marcas: CatalogoItem[];
   colores: CatalogoItem[];
   tallas: CatalogoItem[];
@@ -97,10 +103,20 @@ export function FormProducto({
       </div>
       <div className="form-group">
         <label>Categoría</label>
-        <select name="categoria" required>
-          <option value="DEPORTIVO">Deportivo</option>
-          <option value="CASUAL">Casual</option>
-          <option value="FORMAL">Formal</option>
+        <select name="categoriaId" required>
+          <option value="">Seleccionar categoría...</option>
+          {categorias.map((c) => (
+            <option key={c.id} value={c.id}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Subcategoría</label>
+        <select name="subcategoriaId">
+          <option value="">Sin subcategoría</option>
+          {subcategorias.map((s) => (
+            <option key={s.id} value={s.id}>{s.label}</option>
+          ))}
         </select>
       </div>
       <div className="form-group">
@@ -118,6 +134,15 @@ export function FormProducto({
           <option value="">Seleccionar color...</option>
           {colores.map((c) => (
             <option key={c.id} value={c.id}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Género</label>
+        <select name="generoId">
+          <option value="">Todos</option>
+          {generos.map((g) => (
+            <option key={g.id} value={g.id}>{g.label}</option>
           ))}
         </select>
       </div>

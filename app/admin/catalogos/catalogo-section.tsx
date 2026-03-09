@@ -2,18 +2,22 @@
 
 import { useState } from "react";
 import {
+  crearCategoria, eliminarCategoria,
   crearMarca, eliminarMarca,
   crearColor, eliminarColor,
   crearTalla, eliminarTalla,
+  crearGenero, eliminarGenero,
 } from "@/app/actions/catalogos";
 
 type Item = { id: string; label: string };
 
 const actions = {
+  categoria: { crear: crearCategoria, eliminar: eliminarCategoria },
   marca: { crear: crearMarca, eliminar: eliminarMarca },
   color: { crear: crearColor, eliminar: eliminarColor },
   talla: { crear: crearTalla, eliminar: eliminarTalla },
-};
+  genero: { crear: crearGenero, eliminar: eliminarGenero },
+} as const;
 
 export function CatalogoSection({
   titulo,
@@ -24,7 +28,7 @@ export function CatalogoSection({
 }: {
   titulo: string;
   items: Item[];
-  tipo: "marca" | "color" | "talla";
+  tipo: "categoria" | "marca" | "color" | "talla" | "genero";
   placeholder: string;
   inputName: string;
 }) {

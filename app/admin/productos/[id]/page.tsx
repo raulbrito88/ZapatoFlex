@@ -19,7 +19,15 @@ export default async function EditarProductoPage({
     );
   }
 
-  const [producto, marcas, colores, tallas] = await Promise.all([
+  const [
+    producto,
+    categorias,
+    subcategorias,
+    generos,
+    marcas,
+    colores,
+    tallas,
+  ] = await Promise.all([
     prisma.producto.findUnique({
       where: { id },
       include: {
@@ -27,6 +35,9 @@ export default async function EditarProductoPage({
         variantes: { select: { tallaId: true, stock: true } },
       },
     }),
+    prisma.categoria.findMany({ orderBy: { nombre: "asc" } }),
+    prisma.subcategoria.findMany({ orderBy: { nombre: "asc" } }),
+    prisma.genero.findMany({ orderBy: { nombre: "asc" } }),
     prisma.marca.findMany({ orderBy: { nombre: "asc" } }),
     prisma.color.findMany({ orderBy: { nombre: "asc" } }),
     prisma.talla.findMany({ orderBy: { valor: "asc" } }),
@@ -40,6 +51,13 @@ export default async function EditarProductoPage({
       <h1>Editar: {producto.nombre}</h1>
       <FormEditarProducto
         producto={producto}
+        categorias={categorias.map((c) => ({ id: c.id, label: c.nombre }))}
+        subcategorias={subcategorias.map((s) => ({
+          id: s.id,
+          label: `${s.nombre} — ${categorias.find((c) => c.id === s.categoriaId)?.nombre ?? ""
+            }`,
+        }))}
+        generos={generos.map((g) => ({ id: g.id, label: g.nombre }))}
         marcas={marcas.map((m) => ({ id: m.id, label: m.nombre }))}
         colores={colores.map((c) => ({ id: c.id, label: c.nombre }))}
         tallas={tallas.map((t) => ({ id: t.id, label: t.valor }))}

@@ -97,6 +97,16 @@ a:hover {
   color: var(--accent);
 }
 
+.logo-img {
+  height: 48px;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+[data-theme="dark"] .logo-img {
+  filter: invert(1);
+}
+
 .logo-text {
   font-weight: 300;
   letter-spacing: -0.02em;

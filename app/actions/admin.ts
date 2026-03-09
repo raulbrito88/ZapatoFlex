@@ -9,7 +9,9 @@ const schemaProducto = z.object({
   nombre: z.string().min(1),
   descripcion: z.string().optional(),
   precio: z.number().positive(),
-  categoria: z.enum(["DEPORTIVO", "CASUAL", "FORMAL"]),
+  categoriaId: z.string().min(1),
+  subcategoriaId: z.string().min(1).optional(),
+  generoId: z.string().min(1).optional(),
   marcaId: z.string().min(1),
   colorId: z.string().min(1),
   imagenes: z.array(z.string().url()).default([]),
@@ -35,11 +37,16 @@ export async function crearProducto(prev: unknown, formData: FormData) {
     if (raw) variantes = JSON.parse(raw as string);
   } catch {}
 
+  const subcategoriaId = (formData.get("subcategoriaId") as string) || undefined;
+  const generoId = (formData.get("generoId") as string) || undefined;
+
   const parsed = schemaProducto.safeParse({
     nombre: formData.get("nombre"),
     descripcion: formData.get("descripcion") || undefined,
     precio: Number(formData.get("precio")),
-    categoria: formData.get("categoria"),
+    categoriaId: formData.get("categoriaId"),
+    subcategoriaId,
+    generoId,
     marcaId: formData.get("marcaId"),
     colorId: formData.get("colorId"),
     imagenes,
@@ -51,7 +58,7 @@ export async function crearProducto(prev: unknown, formData: FormData) {
   await prisma.producto.create({
     data: {
       ...data,
-      productoTallas: {
+      variantes: {
         create: vars.filter((v) => v.stock > 0).map((v) => ({
           tallaId: v.tallaId,
           stock: v.stock,
@@ -87,11 +94,16 @@ export async function actualizarProducto(
     if (raw) variantes = JSON.parse(raw as string);
   } catch {}
 
+  const subcategoriaId = (formData.get("subcategoriaId") as string) || undefined;
+  const generoId = (formData.get("generoId") as string) || undefined;
+
   const parsed = schemaProducto.safeParse({
     nombre: formData.get("nombre"),
     descripcion: formData.get("descripcion") || undefined,
     precio: Number(formData.get("precio")),
-    categoria: formData.get("categoria"),
+    categoriaId: formData.get("categoriaId"),
+    subcategoriaId,
+    generoId,
     marcaId: formData.get("marcaId"),
     colorId: formData.get("colorId"),
     imagenes,
@@ -107,7 +119,7 @@ export async function actualizarProducto(
       where: { id },
       data: {
         ...data,
-        productoTallas: {
+        variantes: {
           create: vars.filter((v) => v.stock > 0).map((v) => ({
             tallaId: v.tallaId,
             stock: v.stock,
