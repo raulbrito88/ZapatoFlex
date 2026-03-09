@@ -58,8 +58,8 @@ export default async function AdminProductosPage() {
           categorias={categorias.map((c) => ({ id: c.id, label: c.nombre }))}
           subcategorias={subcategorias.map((s) => ({
             id: s.id,
-            label: `${s.nombre} — ${categorias.find((c) => c.id === s.categoriaId)?.nombre ?? ""
-              }`,
+            label: s.nombre,
+            categoriaId: s.categoriaId,
           }))}
           generos={generos.map((g) => ({ id: g.id, label: g.nombre }))}
           marcas={marcas.map((m) => ({ id: m.id, label: m.nombre }))}

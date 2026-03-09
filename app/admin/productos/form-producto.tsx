@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { crearProducto } from "@/app/actions/admin";
 
 type CatalogoItem = { id: string; label: string };
+type SubcategoriaItem = { id: string; label: string; categoriaId: string };
 
 export function FormProducto({
   categorias,
@@ -14,7 +15,7 @@ export function FormProducto({
   tallas,
 }: {
   categorias: CatalogoItem[];
-  subcategorias: CatalogoItem[];
+  subcategorias: SubcategoriaItem[];
   generos: CatalogoItem[];
   marcas: CatalogoItem[];
   colores: CatalogoItem[];
@@ -22,6 +23,8 @@ export function FormProducto({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoriaId, setCategoriaId] = useState("");
+  const [subcategoriaId, setSubcategoriaId] = useState("");
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [stockPorTalla, setStockPorTalla] = useState<Record<string, number>>({});
   const [showMenu, setShowMenu] = useState(false);
@@ -84,6 +87,8 @@ export function FormProducto({
       form.reset();
       setImagenes([]);
       setStockPorTalla({});
+      setCategoriaId("");
+      setSubcategoriaId("");
     }
   }
 
@@ -103,7 +108,12 @@ export function FormProducto({
       </div>
       <div className="form-group">
         <label>Categoría</label>
-        <select name="categoriaId" required>
+        <select
+          name="categoriaId"
+          required
+          value={categoriaId}
+          onChange={(e) => { setCategoriaId(e.target.value); setSubcategoriaId(""); }}
+        >
           <option value="">Seleccionar categoría...</option>
           {categorias.map((c) => (
             <option key={c.id} value={c.id}>{c.label}</option>
@@ -112,11 +122,18 @@ export function FormProducto({
       </div>
       <div className="form-group">
         <label>Subcategoría</label>
-        <select name="subcategoriaId">
+        <select
+          name="subcategoriaId"
+          value={subcategoriaId}
+          onChange={(e) => setSubcategoriaId(e.target.value)}
+          disabled={!categoriaId}
+        >
           <option value="">Sin subcategoría</option>
-          {subcategorias.map((s) => (
-            <option key={s.id} value={s.id}>{s.label}</option>
-          ))}
+          {subcategorias
+            .filter((s) => s.categoriaId === categoriaId)
+            .map((s) => (
+              <option key={s.id} value={s.id}>{s.label}</option>
+            ))}
         </select>
       </div>
       <div className="form-group">
