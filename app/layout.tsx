@@ -4,7 +4,7 @@ import { Header } from "./components/Header";
 import { obtenerConfiguracionSitio } from "@/lib/configuracion-sitio";
 
 export const metadata: Metadata = {
-  title: "ZapatoFlex - Tienda en línea",
+  title: "Boutique Claudia - Tienda en línea",
   description: "Plataforma de venta de calzado, ropa y artículos para el hogar - ZapatoFlex S.A.S.",
 };
 
