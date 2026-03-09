@@ -21,6 +21,7 @@ export function BarraBusqueda() {
   const [precioMax, setPrecioMax] = useState(searchParams.get("precioMax") || "");
   const [categorias, setCategorias] = useState<CategoriaOption[]>([]);
   const [generos, setGeneros] = useState<GeneroOption[]>([]);
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
 
   useEffect(() => {
     async function cargarFiltros() {
@@ -101,25 +102,43 @@ export function BarraBusqueda() {
     router.push("/tienda");
   }
 
+  const cantFiltrosActivos = [categoriaActual, generoActual, tallaActual, marca, color, precioMin, precioMax].filter(Boolean).length;
+
   return (
     <div className="search-bar">
-      <form onSubmit={handleSearch}>
-        <div className="search-input-wrapper">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      <div className="search-top-row">
+        <form onSubmit={handleSearch} style={{ flex: 1 }}>
+          <div className="search-input-wrapper" style={{ marginBottom: 0 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, marca o descripción..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
+        </form>
+        <button
+          type="button"
+          className={`filtros-toggle-btn${cantFiltrosActivos > 0 ? " tiene-filtros" : ""}${filtrosAbiertos ? " abierto" : ""}`}
+          onClick={() => setFiltrosAbiertos((v) => !v)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+            <line x1="11" y1="18" x2="13" y2="18" />
           </svg>
-          <input
-            type="text"
-            placeholder="Buscar por nombre, marca o descripción..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
-        </div>
-      </form>
+          Filtros{cantFiltrosActivos > 0 ? ` (${cantFiltrosActivos})` : ""}
+        </button>
+      </div>
+
+      <div className={`filtros-panel${filtrosAbiertos ? " abierto" : ""}`}>
 
       {/* Categorías */}
-      <div className="search-filters">
+      <div className="search-filters" style={{ marginTop: "1rem" }}>
         <button
           type="button"
           className={`filter-chip${categoriaActual === "" ? " active" : ""}`}
@@ -232,6 +251,7 @@ export function BarraBusqueda() {
             Limpiar filtros
           </button>
         )}
+      </div>
       </div>
     </div>
   );
