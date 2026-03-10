@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { obtenerConfiguracionSitio } from "@/lib/configuracion-sitio";
 import { CerrarSesionBtn } from "./CerrarSesionBtn";
 import { ThemeToggle } from "./ThemeToggle";
+import { MobileNav } from "./MobileNav";
 
 export async function Header() {
   const [usuario, config] = await Promise.all([
@@ -56,6 +57,7 @@ export async function Header() {
               <span className="carrito-badge">{cantidadCarrito}</span>
             )}
           </Link>
+          <Link href="/favoritos">Favoritos</Link>
           <Link href="/pedidos">Mis pedidos</Link>
           {usuario ? (
             <>
@@ -75,6 +77,10 @@ export async function Header() {
             </>
           )}
         </nav>
+        <MobileNav
+          usuario={usuario ? { nombre: usuario.nombre, rol: usuario.rol } : null}
+          cantidadCarrito={cantidadCarrito}
+        />
       </div>
     </header>
   );

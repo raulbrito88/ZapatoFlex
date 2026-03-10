@@ -39,6 +39,7 @@ model Usuario {
   createdAt DateTime @default(now())
   carrito   Carrito?
   pedidos   Pedido[]
+  favoritos Favorito[]
 }
 
 // --- Catálogos ---
@@ -106,6 +107,7 @@ model Producto {
   variantes   ProductoTalla[]
   lineasCarrito LineaCarrito[]
   lineasPedido  LineaPedido[]
+  favoritos   Favorito[]
 }
 
 model ProductoTalla {
@@ -179,6 +181,19 @@ model Pago {
   metodo    String     @default("CONTRAENTREGA")
   estado    EstadoPago @default(SIMULADO)
   createdAt DateTime   @default(now())
+}
+
+// --- Favoritos ---
+
+model Favorito {
+  id         String   @id @default(cuid())
+  usuarioId  String
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([usuarioId, productoId])
 }
 
 // --- Configuración de sitio ---

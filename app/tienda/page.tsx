@@ -3,6 +3,9 @@ import { productoRepository, FiltrosProducto } from "@/lib/repositories/producto
 import { AgregarAlCarritoBtn } from "./agregar-carrito";
 import { CarruselProducto } from "./carrusel-producto";
 import { BarraBusqueda } from "./barra-busqueda";
+import { FavoritoBtn } from "./favorito-btn";
+import { obtenerUsuarioActual } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 type SearchParams = {
   categoria?: string;
@@ -30,7 +33,19 @@ export default async function TiendaPage({
   if (searchParams.precioMax) filtros.precioMax = Number(searchParams.precioMax);
   if (searchParams.busqueda) filtros.busqueda = searchParams.busqueda;
 
-  const productos = await productoRepository.findMany(filtros);
+  const [productos, usuario] = await Promise.all([
+    productoRepository.findMany(filtros),
+    obtenerUsuarioActual(),
+  ]);
+
+  let favoritoIds = new Set<string>();
+  if (usuario) {
+    const favs = await prisma.favorito.findMany({
+      where: { usuarioId: usuario.id },
+      select: { productoId: true },
+    });
+    favoritoIds = new Set(favs.map((f) => f.productoId));
+  }
 
   return (
     <div className="container">
@@ -47,11 +62,12 @@ export default async function TiendaPage({
               .filter((v) => v.stock > 0)
               .map((v) => v.talla.valor);
             return (
-              <div key={p.id} className="card">
+              <div key={p.id} className="card card-producto">
                 <CarruselProducto
                   imagenes={p.imagenes || []}
                   nombre={p.nombre}
                 />
+                <FavoritoBtn productoId={p.id} inicial={favoritoIds.has(p.id)} />
                 <div className="card-body">
                   <div style={{ marginBottom: "0.5rem" }}>
                     <span className="badge">

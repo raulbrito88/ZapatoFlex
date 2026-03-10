@@ -156,6 +156,105 @@ a:hover {
   line-height: 1;
 }
 
+/* Favorito button */
+.card-producto {
+  position: relative;
+}
+
+.favorito-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.favorito-btn:hover {
+  background: rgba(0, 0, 0, 0.55);
+  transform: scale(1.1);
+}
+
+.favorito-btn.activo {
+  background: rgba(239, 68, 68, 0.85);
+  color: white;
+}
+
+.favorito-btn.activo:hover {
+  background: rgba(220, 38, 38, 0.9);
+}
+
+/* Hamburger / Mobile Nav */
+.mobile-nav-wrapper {
+  display: none;
+  position: relative;
+}
+
+.hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.hamburger-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.mobile-menu {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: var(--shadow);
+  z-index: 200;
+}
+
+.mobile-menu a {
+  color: var(--text);
+  font-size: 1rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.mobile-menu a:hover {
+  background: var(--accent-soft);
+  text-decoration: none;
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+}
+
 /* Theme toggle */
 .theme-toggle {
   background: transparent;
@@ -818,6 +917,18 @@ label {
 
   .hero p {
     font-size: 1rem;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .mobile-nav-wrapper {
+    display: block;
+  }
+
+  .header .container {
+    flex-wrap: nowrap;
   }
 
   .filtros-toggle-btn {
