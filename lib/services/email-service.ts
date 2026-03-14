@@ -28,6 +28,66 @@ type PedidoEmail = {
   lineas: LineaPedidoEmail[];
 };
 
+export async function enviarNotificacionAdminPedido(
+  nombreCliente: string,
+  emailCliente: string,
+  pedido: PedidoEmail
+): Promise<void> {
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+  if (!adminEmail || !process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+
+  const lineasHtml = pedido.lineas
+    .map(
+      (l) =>
+        `<tr>
+          <td style="padding:8px;border-bottom:1px solid #eee">${l.nombre}</td>
+          <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.talla || "-"}</td>
+          <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.cantidad}</td>
+          <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${(l.precioUnitario * l.cantidad).toLocaleString("es-CO")}</td>
+        </tr>`
+    )
+    .join("");
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333">
+      <div style="background:#22c55e;color:#fff;padding:20px;text-align:center;border-radius:8px 8px 0 0">
+        <h1 style="margin:0;font-size:22px">Nueva venta recibida</h1>
+        <p style="margin:4px 0 0">Pedido #${pedido.id.slice(-8)}</p>
+      </div>
+      <div style="padding:20px;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px">
+        <p><strong>Cliente:</strong> ${nombreCliente} (${emailCliente})</p>
+        <p><strong>Método de pago:</strong> ${pedido.metodoPago}</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0">
+          <thead>
+            <tr style="background:#f5f5f5">
+              <th style="padding:8px;text-align:left">Producto</th>
+              <th style="padding:8px;text-align:center">Talla</th>
+              <th style="padding:8px;text-align:center">Cant.</th>
+              <th style="padding:8px;text-align:right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>${lineasHtml}</tbody>
+        </table>
+        <p style="font-size:18px;font-weight:bold;text-align:right;color:#22c55e">
+          Total: $${pedido.total.toLocaleString("es-CO")}
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"ZapatoFlex" <${process.env.SMTP_USER}>`,
+      to: adminEmail,
+      subject: `Nueva venta #${pedido.id.slice(-8)} — $${pedido.total.toLocaleString("es-CO")}`,
+      html,
+    });
+    console.log("[Email] Notificación admin enviada a", adminEmail);
+  } catch (error) {
+    console.error("[Email] Error al enviar notificación admin:", error);
+  }
+}
+
 export async function enviarConfirmacionPedido(
   destinatario: string,
   nombreCliente: string,

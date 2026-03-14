@@ -4,7 +4,7 @@
  */
 import { prisma } from "@/lib/db";
 import { ContraentregaStrategy } from "./pago-strategy";
-import { enviarConfirmacionPedido } from "./email-service";
+import { enviarConfirmacionPedido, enviarNotificacionAdminPedido } from "./email-service";
 import type { IMetodoPagoStrategy } from "./pago-strategy";
 
 export interface CheckoutResult {
@@ -107,10 +107,10 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
   // Vaciar carrito
   await prisma.lineaCarrito.deleteMany({ where: { carritoId: carrito.id } });
 
-  // Enviar email de confirmación (no bloquea el checkout)
+  // Enviar emails (no bloquean el checkout)
   const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
   if (usuario) {
-    enviarConfirmacionPedido(usuario.email, usuario.nombre, {
+    const datosPedido = {
       id: pedido.id,
       total: pedido.total,
       metodoPago: "CONTRAENTREGA",
@@ -120,7 +120,11 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
         cantidad: i.cantidad,
         precioUnitario: i.producto.precio,
       })),
-    }).catch((err) => console.error("[Checkout] Error enviando email:", err));
+    };
+    enviarConfirmacionPedido(usuario.email, usuario.nombre, datosPedido)
+      .catch((err) => console.error("[Checkout] Error enviando email cliente:", err));
+    enviarNotificacionAdminPedido(usuario.nombre, usuario.email, datosPedido)
+      .catch((err) => console.error("[Checkout] Error enviando email admin:", err));
   }
 
   return { success: true, pedidoId: pedido.id };
