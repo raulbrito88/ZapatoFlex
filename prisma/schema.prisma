@@ -40,11 +40,13 @@ model Usuario {
   carrito        Carrito?
   pedidos        Pedido[]
   favoritos      Favorito[]
-  documento      String?
-  departamento   String?
-  municipio      String?
-  direccionEnvio String?
-  complemento    String?
+  documento        String?
+  departamento     String?
+  municipio        String?
+  direccionEnvio   String?
+  complemento      String?
+  resetToken       String?
+  resetTokenExpiry DateTime?
 }
 
 // --- Catálogos ---
@@ -207,6 +209,7 @@ model Favorito {
 
 model ConfiguracionSitio {
   id              String   @id @default("default")
+  nombreSitio     String   @default("ZapatoFlex")
   heroTitulo      String   @default("Tu estilo, tu comodidad")
   heroDescripcion String   @default("Descubre calzado deportivo, casual y formal con envios a todo Colombia.")
   colorPrimario   String   @default("#6366f1")

@@ -6,6 +6,7 @@ import { obtenerUsuarioActual } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 const schemaConfig = z.object({
+  nombreSitio: z.string().min(1),
   heroTitulo: z.string().min(1),
   heroDescripcion: z.string().min(1),
   colorPrimario: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, {
@@ -21,6 +22,7 @@ export async function actualizarConfiguracion(prev: unknown, formData: FormData)
   const whatsappNumero = (formData.get("whatsappNumero") as string) || null;
 
   const parsed = schemaConfig.safeParse({
+    nombreSitio: formData.get("nombreSitio"),
     heroTitulo: formData.get("heroTitulo"),
     heroDescripcion: formData.get("heroDescripcion"),
     colorPrimario: formData.get("colorPrimario"),
@@ -33,10 +35,11 @@ export async function actualizarConfiguracion(prev: unknown, formData: FormData)
 
   const data = parsed.data;
 
-  await (prisma.configuracionSitio as any).upsert({
+  await prisma.configuracionSitio.upsert({
     where: { id: "default" },
     create: {
       id: "default",
+      nombreSitio: data.nombreSitio,
       heroTitulo: data.heroTitulo,
       heroDescripcion: data.heroDescripcion,
       colorPrimario: data.colorPrimario,
@@ -44,6 +47,7 @@ export async function actualizarConfiguracion(prev: unknown, formData: FormData)
       whatsappNumero,
     },
     update: {
+      nombreSitio: data.nombreSitio,
       heroTitulo: data.heroTitulo,
       heroDescripcion: data.heroDescripcion,
       colorPrimario: data.colorPrimario,

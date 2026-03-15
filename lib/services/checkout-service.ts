@@ -31,20 +31,31 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
     return { success: false, error: "Carrito vacío" };
   }
 
-  // Verificar stock por talla
+  // Verificar stock
   for (const item of carrito.items) {
-    if (!item.talla) {
-      return { success: false, error: `Selecciona una talla para "${item.producto.nombre}"` };
-    }
-    const variante = item.producto.variantes.find(
-      (v) => v.talla.valor === item.talla
-    );
-    if (!variante || variante.stock < item.cantidad) {
-      const disponible = variante?.stock ?? 0;
-      return {
-        success: false,
-        error: `Stock insuficiente para "${item.producto.nombre}" talla ${item.talla}. Disponible: ${disponible}`,
-      };
+    const prod = item.producto as any;
+    if (prod.requiereTalla === false) {
+      // Producto sin talla: verificar stockTotal
+      if ((prod.stockTotal ?? 0) < item.cantidad) {
+        return {
+          success: false,
+          error: `Stock insuficiente para "${item.producto.nombre}". Disponible: ${prod.stockTotal ?? 0}`,
+        };
+      }
+    } else {
+      if (!item.talla) {
+        return { success: false, error: `Selecciona una talla para "${item.producto.nombre}"` };
+      }
+      const variante = item.producto.variantes.find(
+        (v) => v.talla.valor === item.talla
+      );
+      if (!variante || variante.stock < item.cantidad) {
+        const disponible = variante?.stock ?? 0;
+        return {
+          success: false,
+          error: `Stock insuficiente para "${item.producto.nombre}" talla ${item.talla}. Disponible: ${disponible}`,
+        };
+      }
     }
   }
 
@@ -91,16 +102,24 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
     },
   });
 
-  // Descontar stock por talla
+  // Descontar stock
   for (const item of carrito.items) {
-    const variante = item.producto.variantes.find(
-      (v) => v.talla.valor === item.talla
-    );
-    if (variante) {
-      await prisma.productoTalla.update({
-        where: { id: variante.id },
-        data: { stock: { decrement: item.cantidad } },
+    const prod = item.producto as any;
+    if (prod.requiereTalla === false) {
+      await (prisma.producto as any).update({
+        where: { id: item.productoId },
+        data: { stockTotal: { decrement: item.cantidad } },
       });
+    } else {
+      const variante = item.producto.variantes.find(
+        (v) => v.talla.valor === item.talla
+      );
+      if (variante) {
+        await prisma.productoTalla.update({
+          where: { id: variante.id },
+          data: { stock: { decrement: item.cantidad } },
+        });
+      }
     }
   }
 

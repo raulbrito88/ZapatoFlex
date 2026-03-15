@@ -50,6 +50,11 @@ export function FormConfiguracion({ config }: { config: ConfiguracionSitio }) {
   return (
     <form action={submit}>
       <div className="form-group">
+        <label>Nombre del sitio</label>
+        <input name="nombreSitio" defaultValue={config.nombreSitio ?? "ZapatoFlex"} required />
+        <small className="text-muted">Aparece en el asunto y remitente de los correos electrónicos.</small>
+      </div>
+      <div className="form-group">
         <label>Título principal (home)</label>
         <input name="heroTitulo" defaultValue={config.heroTitulo} required />
       </div>

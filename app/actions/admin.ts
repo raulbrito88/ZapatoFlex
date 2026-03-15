@@ -60,9 +60,10 @@ export async function crearProducto(prev: unknown, formData: FormData) {
   if (!parsed.success) return { error: "Datos inválidos." };
 
   const { imagenes: imgs, variantes: vars, ...data } = parsed.data;
+  const campos = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined));
   await (prisma.producto as any).create({
     data: {
-      ...data,
+      ...campos,
       variantes: {
         create: vars.filter((v) => v.stock > 0).map((v) => ({
           tallaId: v.tallaId,
@@ -120,13 +121,16 @@ export async function actualizarProducto(
   if (!parsed.success) return { error: "Datos inválidos." };
 
   const { imagenes: imgs, variantes: vars, ...data } = parsed.data;
+  const campos = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined));
   await prisma.$transaction([
     prisma.imagenProducto.deleteMany({ where: { productoId: id } }),
     prisma.productoTalla.deleteMany({ where: { productoId: id } }),
     (prisma.producto as any).update({
       where: { id },
       data: {
-        ...data,
+        ...campos,
+        marcaId: campos.marcaId ?? null,
+        colorId: campos.colorId ?? null,
         variantes: {
           create: vars.filter((v) => v.stock > 0).map((v) => ({
             tallaId: v.tallaId,

@@ -42,8 +42,10 @@ export default async function AdminProductosPage() {
     prisma.talla.findMany({ orderBy: { valor: "asc" } }),
   ]);
 
-  const stockTotal = (variantes: { stock: number }[]) =>
-    variantes.reduce((s, v) => s + v.stock, 0);
+  const stockTotal = (p: { requiereTalla?: boolean; stockTotal?: number; variantes: { stock: number }[] }) =>
+    (p as any).requiereTalla === false
+      ? (p as any).stockTotal ?? 0
+      : p.variantes.reduce((s, v) => s + v.stock, 0);
 
   return (
     <div className="container">
@@ -77,14 +79,15 @@ export default async function AdminProductosPage() {
             <li key={p.id} className="card" style={{ marginBottom: "0.75rem" }}>
               <div style={{ padding: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
                 <div>
-                  <strong>{p.nombre}</strong> — {p.marca.nombre} ·{" "}
+                  <strong>{p.nombre}</strong>
+                  {p.marca ? ` — ${p.marca.nombre}` : ""} ·{" "}
                   {p.categoria?.nombre ?? "Sin categoría"}{" "}
                   {p.subcategoria ? `· ${p.subcategoria.nombre}` : ""}{" "}
                   {p.genero ? `· ${p.genero.nombre}` : ""} · $
                   {Number(p.precio).toLocaleString("es-CO")}
                   <br />
                   <span className="text-muted">
-                    Color: {p.color.nombre} · Stock total: {stockTotal(p.variantes)}
+                    {p.color ? `Color: ${p.color.nombre} · ` : ""}Stock total: {stockTotal(p as any)}
                   </span>
                 </div>
                 <div style={{ display: "flex", gap: "0.5rem" }}>
