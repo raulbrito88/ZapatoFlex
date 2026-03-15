@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "./components/Header";
+import { WhatsappBtn } from "./components/WhatsappBtn";
 import { obtenerConfiguracionSitio } from "@/lib/configuracion-sitio";
 
 export const metadata: Metadata = {
@@ -41,6 +42,7 @@ export default async function RootLayout({
         <main style={{ padding: "2rem 0", minHeight: "calc(100vh - 120px)" }}>
           {children}
         </main>
+        {(config as any).whatsappNumero && <WhatsappBtn numero={(config as any).whatsappNumero} />}
       </body>
     </html>
   );

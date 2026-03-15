@@ -41,9 +41,11 @@ export default async function FavoritosPage() {
       ) : (
         <div className="grid-productos">
           {favoritos.map(({ producto: p }) => {
+            const pAny = p as any;
             const tallasDisponibles = p.variantes
               .filter((v) => v.stock > 0)
               .map((v) => v.talla.valor);
+            const sinTallas = pAny.requiereTalla === false;
             return (
               <div key={p.id} className="card card-producto">
                 <CarruselProducto imagenes={p.imagenes || []} nombre={p.nombre} />
@@ -57,14 +59,18 @@ export default async function FavoritosPage() {
                   </div>
                   <h3 className="card-title">{p.nombre}</h3>
                   <p className="card-meta">
-                    {p.marca.nombre} · {p.color.nombre}
-                    {p.genero ? ` · ${p.genero.nombre}` : ""}
+                    {[p.marca?.nombre, p.color?.nombre, p.genero?.nombre].filter(Boolean).join(" · ")}
                   </p>
-                  {tallasDisponibles.length > 0 && (
+                  {!sinTallas && tallasDisponibles.length > 0 && (
                     <p className="card-meta">Tallas: {tallasDisponibles.join(", ")}</p>
                   )}
+                  {sinTallas && (
+                    <p className="card-meta">
+                      {pAny.stockTotal > 0 ? `En stock: ${pAny.stockTotal}` : "Sin stock"}
+                    </p>
+                  )}
                   <p className="card-price">${Number(p.precio).toLocaleString("es-CO")}</p>
-                  <AgregarAlCarritoBtn productoId={p.id} tallas={tallasDisponibles} />
+                  <AgregarAlCarritoBtn productoId={p.id} tallas={sinTallas ? [] : tallasDisponibles} />
                 </div>
               </div>
             );

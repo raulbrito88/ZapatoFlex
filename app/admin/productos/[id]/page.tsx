@@ -50,7 +50,7 @@ export default async function EditarProductoPage({
       <Link href="/admin/productos" className="btn btn-ghost btn-sm mb-2">← Volver a productos</Link>
       <h1>Editar: {producto.nombre}</h1>
       <FormEditarProducto
-        producto={producto}
+        producto={producto as any}
         categorias={categorias.map((c) => ({ id: c.id, label: c.nombre }))}
         subcategorias={subcategorias.map((s) => ({
           id: s.id,

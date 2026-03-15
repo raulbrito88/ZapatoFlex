@@ -18,6 +18,8 @@ export async function actualizarConfiguracion(prev: unknown, formData: FormData)
   const usuario = await obtenerUsuarioActual();
   if (!usuario || usuario.rol !== "ADMIN") return { error: "No autorizado" };
 
+  const whatsappNumero = (formData.get("whatsappNumero") as string) || null;
+
   const parsed = schemaConfig.safeParse({
     heroTitulo: formData.get("heroTitulo"),
     heroDescripcion: formData.get("heroDescripcion"),
@@ -31,7 +33,7 @@ export async function actualizarConfiguracion(prev: unknown, formData: FormData)
 
   const data = parsed.data;
 
-  await prisma.configuracionSitio.upsert({
+  await (prisma.configuracionSitio as any).upsert({
     where: { id: "default" },
     create: {
       id: "default",
@@ -39,12 +41,14 @@ export async function actualizarConfiguracion(prev: unknown, formData: FormData)
       heroDescripcion: data.heroDescripcion,
       colorPrimario: data.colorPrimario,
       logoUrl: data.logoUrl || null,
+      whatsappNumero,
     },
     update: {
       heroTitulo: data.heroTitulo,
       heroDescripcion: data.heroDescripcion,
       colorPrimario: data.colorPrimario,
       logoUrl: data.logoUrl || null,
+      whatsappNumero,
     },
   });
 

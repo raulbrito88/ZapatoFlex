@@ -37,9 +37,14 @@ model Usuario {
   passwordHash String
   rol       Rol      @default(USUARIO)
   createdAt DateTime @default(now())
-  carrito   Carrito?
-  pedidos   Pedido[]
-  favoritos Favorito[]
+  carrito        Carrito?
+  pedidos        Pedido[]
+  favoritos      Favorito[]
+  documento      String?
+  departamento   String?
+  municipio      String?
+  direccionEnvio String?
+  complemento    String?
 }
 
 // --- Catálogos ---
@@ -96,13 +101,15 @@ model Producto {
   categoria   Categoria?        @relation(fields: [categoriaId], references: [id])
   subcategoriaId String?
   subcategoria   Subcategoria?  @relation(fields: [subcategoriaId], references: [id])
-  marcaId     String
-  marca       Marca             @relation(fields: [marcaId], references: [id])
-  colorId     String
-  color       Color             @relation(fields: [colorId], references: [id])
-  generoId    String?
-  genero      Genero?           @relation(fields: [generoId], references: [id])
-  createdAt   DateTime          @default(now())
+  marcaId     String?
+  marca       Marca?            @relation(fields: [marcaId], references: [id])
+  colorId     String?
+  color       Color?            @relation(fields: [colorId], references: [id])
+  generoId      String?
+  genero        Genero?           @relation(fields: [generoId], references: [id])
+  requiereTalla Boolean           @default(true)
+  stockTotal    Int               @default(0)
+  createdAt     DateTime          @default(now())
   imagenes    ImagenProducto[]
   variantes   ProductoTalla[]
   lineasCarrito LineaCarrito[]
@@ -204,6 +211,7 @@ model ConfiguracionSitio {
   heroDescripcion String   @default("Descubre calzado deportivo, casual y formal con envios a todo Colombia.")
   colorPrimario   String   @default("#6366f1")
   logoUrl         String?
+  whatsappNumero  String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

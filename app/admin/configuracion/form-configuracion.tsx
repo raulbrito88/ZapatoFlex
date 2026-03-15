@@ -107,6 +107,16 @@ export function FormConfiguracion({ config }: { config: ConfiguracionSitio }) {
         </div>
       </div>
 
+      <div className="form-group">
+        <label>Número de WhatsApp (contacto)</label>
+        <input
+          name="whatsappNumero"
+          defaultValue={(config as any).whatsappNumero ?? ""}
+          placeholder="Ej: 573001234567 (con código de país, sin +)"
+        />
+        <small className="text-muted">Deja vacío para ocultar el botón flotante.</small>
+      </div>
+
       {error && <p className="form-error">{error}</p>}
       {success && <p className="text-muted">{success}</p>}
 

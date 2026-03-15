@@ -25,6 +25,7 @@ type PedidoEmail = {
   id: string;
   total: number;
   metodoPago: string;
+  direccionEnvio?: string;
   lineas: LineaPedidoEmail[];
 };
 
@@ -57,6 +58,7 @@ export async function enviarNotificacionAdminPedido(
       <div style="padding:20px;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px">
         <p><strong>Cliente:</strong> ${nombreCliente} (${emailCliente})</p>
         <p><strong>Método de pago:</strong> ${pedido.metodoPago}</p>
+        ${pedido.direccionEnvio ? `<p><strong>Dirección de envío:</strong> ${pedido.direccionEnvio}</p>` : ""}
         <table style="width:100%;border-collapse:collapse;margin:16px 0">
           <thead>
             <tr style="background:#f5f5f5">
@@ -119,6 +121,7 @@ export async function enviarConfirmacionPedido(
       <div style="padding:20px;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px">
         <p>Hola <strong>${nombreCliente}</strong>,</p>
         <p>Tu pedido <strong>#${pedido.id.slice(-8)}</strong> ha sido registrado exitosamente.</p>
+        ${pedido.direccionEnvio ? `<p><strong>Dirección de envío:</strong> ${pedido.direccionEnvio}</p>` : ""}
         <table style="width:100%;border-collapse:collapse;margin:16px 0">
           <thead>
             <tr style="background:#f5f5f5">

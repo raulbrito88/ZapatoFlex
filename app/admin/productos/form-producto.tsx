@@ -27,6 +27,8 @@ export function FormProducto({
   const [subcategoriaId, setSubcategoriaId] = useState("");
   const [imagenes, setImagenes] = useState<string[]>([]);
   const [stockPorTalla, setStockPorTalla] = useState<Record<string, number>>({});
+  const [requiereTalla, setRequiereTalla] = useState(true);
+  const [stockTotal, setStockTotal] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlValue, setUrlValue] = useState("");
@@ -75,10 +77,11 @@ export function FormProducto({
     const form = e.currentTarget;
     const formData = new FormData(form);
     formData.set("imagenes", JSON.stringify(imagenes));
-    const variantes = tallas.map((t) => ({
-      tallaId: t.id,
-      stock: stockPorTalla[t.id] || 0,
-    }));
+    formData.set("requiereTalla", String(requiereTalla));
+    formData.set("stockTotal", String(requiereTalla ? 0 : stockTotal));
+    const variantes = requiereTalla
+      ? tallas.map((t) => ({ tallaId: t.id, stock: stockPorTalla[t.id] || 0 }))
+      : [];
     formData.set("variantes", JSON.stringify(variantes));
     const res = await crearProducto(null, formData);
     setLoading(false);
@@ -87,6 +90,7 @@ export function FormProducto({
       form.reset();
       setImagenes([]);
       setStockPorTalla({});
+      setStockTotal(0);
       setCategoriaId("");
       setSubcategoriaId("");
     }
@@ -138,8 +142,8 @@ export function FormProducto({
       </div>
       <div className="form-group">
         <label>Marca</label>
-        <select name="marcaId" required>
-          <option value="">Seleccionar marca...</option>
+        <select name="marcaId">
+          <option value="">Sin especificar</option>
           {marcas.map((m) => (
             <option key={m.id} value={m.id}>{m.label}</option>
           ))}
@@ -147,8 +151,8 @@ export function FormProducto({
       </div>
       <div className="form-group">
         <label>Color</label>
-        <select name="colorId" required>
-          <option value="">Seleccionar color...</option>
+        <select name="colorId">
+          <option value="">Sin especificar</option>
           {colores.map((c) => (
             <option key={c.id} value={c.id}>{c.label}</option>
           ))}
@@ -164,28 +168,54 @@ export function FormProducto({
         </select>
       </div>
 
-      {/* Stock por talla */}
-      <div className="form-group">
-        <label>Stock por talla</label>
-        {tallas.length === 0 ? (
-          <p className="text-muted">No hay tallas registradas. Crea tallas en Catálogos.</p>
-        ) : (
-          <div className="stock-talla-grid">
-            {tallas.map((t) => (
-              <div key={t.id} className="stock-talla-item">
-                <span className="stock-talla-label">{t.label}</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={stockPorTalla[t.id] || 0}
-                  onChange={(e) => handleStockChange(t.id, e.target.value)}
-                  className="stock-talla-input"
-                />
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Requiere talla */}
+      <div className="form-group" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <input
+          type="checkbox"
+          id="requiereTalla"
+          checked={requiereTalla}
+          onChange={(e) => setRequiereTalla(e.target.checked)}
+          style={{ width: "auto" }}
+        />
+        <label htmlFor="requiereTalla" style={{ marginBottom: 0, cursor: "pointer" }}>
+          Requiere selección de talla
+        </label>
       </div>
+
+      {/* Stock por talla o stock total */}
+      {requiereTalla ? (
+        <div className="form-group">
+          <label>Stock por talla</label>
+          {tallas.length === 0 ? (
+            <p className="text-muted">No hay tallas registradas. Crea tallas en Catálogos.</p>
+          ) : (
+            <div className="stock-talla-grid">
+              {tallas.map((t) => (
+                <div key={t.id} className="stock-talla-item">
+                  <span className="stock-talla-label">{t.label}</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={stockPorTalla[t.id] || 0}
+                    onChange={(e) => handleStockChange(t.id, e.target.value)}
+                    className="stock-talla-input"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="form-group">
+          <label>Stock disponible</label>
+          <input
+            type="number"
+            min="0"
+            value={stockTotal}
+            onChange={(e) => setStockTotal(Number(e.target.value) || 0)}
+          />
+        </div>
+      )}
 
       {/* Imágenes dinámicas */}
       <div className="form-group">

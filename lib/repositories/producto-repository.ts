@@ -13,8 +13,8 @@ export type ProductoCompleto = Producto & {
   categoria: (Pick<Categoria, "id" | "nombre">) | null;
   subcategoria: (Pick<Subcategoria, "id" | "nombre">) | null;
   genero: (Pick<Genero, "id" | "nombre">) | null;
-  marca: Marca;
-  color: Color;
+  marca: Marca | null;
+  color: Color | null;
   variantes: {
     id: string;
     tallaId: string;

@@ -107,13 +107,24 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
   // Vaciar carrito
   await prisma.lineaCarrito.deleteMany({ where: { carritoId: carrito.id } });
 
-  // Enviar emails (no bloquean el checkout)
-  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+  // Enviar emails — await con Promise.allSettled para garantizar envío en Vercel
+  const usuario = await prisma.usuario.findUnique({
+    where: { id: usuarioId },
+    select: { email: true, nombre: true, direccionEnvio: true, complemento: true, municipio: true, departamento: true },
+  });
   if (usuario) {
+    const direccion = [
+      usuario.direccionEnvio,
+      usuario.complemento,
+      usuario.municipio,
+      usuario.departamento,
+    ].filter(Boolean).join(", ") || undefined;
+
     const datosPedido = {
       id: pedido.id,
       total: pedido.total,
       metodoPago: "CONTRAENTREGA",
+      direccionEnvio: direccion,
       lineas: carrito.items.map((i) => ({
         nombre: i.producto.nombre,
         talla: i.talla,
@@ -121,10 +132,10 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
         precioUnitario: i.producto.precio,
       })),
     };
-    enviarConfirmacionPedido(usuario.email, usuario.nombre, datosPedido)
-      .catch((err) => console.error("[Checkout] Error enviando email cliente:", err));
-    enviarNotificacionAdminPedido(usuario.nombre, usuario.email, datosPedido)
-      .catch((err) => console.error("[Checkout] Error enviando email admin:", err));
+    await Promise.allSettled([
+      enviarConfirmacionPedido(usuario.email, usuario.nombre, datosPedido),
+      enviarNotificacionAdminPedido(usuario.nombre, usuario.email, datosPedido),
+    ]);
   }
 
   return { success: true, pedidoId: pedido.id };

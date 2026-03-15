@@ -12,8 +12,10 @@ const schemaProducto = z.object({
   categoriaId: z.string().min(1),
   subcategoriaId: z.string().min(1).optional(),
   generoId: z.string().min(1).optional(),
-  marcaId: z.string().min(1),
-  colorId: z.string().min(1),
+  marcaId: z.string().min(1).optional(),
+  colorId: z.string().min(1).optional(),
+  requiereTalla: z.boolean().default(true),
+  stockTotal: z.number().int().min(0).default(0),
   imagenes: z.array(z.string().url()).default([]),
   variantes: z.array(z.object({
     tallaId: z.string().min(1),
@@ -39,6 +41,7 @@ export async function crearProducto(prev: unknown, formData: FormData) {
 
   const subcategoriaId = (formData.get("subcategoriaId") as string) || undefined;
   const generoId = (formData.get("generoId") as string) || undefined;
+  const requiereTalla = formData.get("requiereTalla") !== "false";
 
   const parsed = schemaProducto.safeParse({
     nombre: formData.get("nombre"),
@@ -47,15 +50,17 @@ export async function crearProducto(prev: unknown, formData: FormData) {
     categoriaId: formData.get("categoriaId"),
     subcategoriaId,
     generoId,
-    marcaId: formData.get("marcaId"),
-    colorId: formData.get("colorId"),
+    marcaId: (formData.get("marcaId") as string) || undefined,
+    colorId: (formData.get("colorId") as string) || undefined,
+    requiereTalla,
+    stockTotal: requiereTalla ? 0 : Number(formData.get("stockTotal")) || 0,
     imagenes,
     variantes,
   });
   if (!parsed.success) return { error: "Datos inválidos." };
 
   const { imagenes: imgs, variantes: vars, ...data } = parsed.data;
-  await prisma.producto.create({
+  await (prisma.producto as any).create({
     data: {
       ...data,
       variantes: {
@@ -96,6 +101,7 @@ export async function actualizarProducto(
 
   const subcategoriaId = (formData.get("subcategoriaId") as string) || undefined;
   const generoId = (formData.get("generoId") as string) || undefined;
+  const requiereTalla = formData.get("requiereTalla") !== "false";
 
   const parsed = schemaProducto.safeParse({
     nombre: formData.get("nombre"),
@@ -104,8 +110,10 @@ export async function actualizarProducto(
     categoriaId: formData.get("categoriaId"),
     subcategoriaId,
     generoId,
-    marcaId: formData.get("marcaId"),
-    colorId: formData.get("colorId"),
+    marcaId: (formData.get("marcaId") as string) || undefined,
+    colorId: (formData.get("colorId") as string) || undefined,
+    requiereTalla,
+    stockTotal: requiereTalla ? 0 : Number(formData.get("stockTotal")) || 0,
     imagenes,
     variantes,
   });
@@ -115,7 +123,7 @@ export async function actualizarProducto(
   await prisma.$transaction([
     prisma.imagenProducto.deleteMany({ where: { productoId: id } }),
     prisma.productoTalla.deleteMany({ where: { productoId: id } }),
-    prisma.producto.update({
+    (prisma.producto as any).update({
       where: { id },
       data: {
         ...data,

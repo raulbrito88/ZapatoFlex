@@ -8,16 +8,20 @@ export async function agregarAlCarrito(productoId: string, cantidad: number = 1,
   const usuario = await obtenerUsuarioActual();
   if (!usuario) return { error: "Debes iniciar sesión" };
 
-  // Verificar stock para esa talla
+  // Verificar stock
   if (talla) {
     const variante = await prisma.productoTalla.findFirst({
-      where: {
-        productoId,
-        talla: { valor: talla },
-        stock: { gt: 0 },
-      },
+      where: { productoId, talla: { valor: talla }, stock: { gt: 0 } },
     });
     if (!variante) return { error: `Sin stock para talla ${talla}` };
+  } else {
+    const prod = await (prisma.producto as any).findUnique({
+      where: { id: productoId },
+      select: { requiereTalla: true, stockTotal: true },
+    });
+    if (prod && prod.requiereTalla === false && prod.stockTotal <= 0) {
+      return { error: "Sin stock disponible" };
+    }
   }
 
   let carrito = await prisma.carrito.findUnique({ where: { usuarioId: usuario.id } });

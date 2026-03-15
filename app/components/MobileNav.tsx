@@ -60,10 +60,11 @@ export function MobileNav({ usuario, cantidadCarrito }: Props) {
             <Link href="/pedidos" onClick={cerrar}>Mis pedidos</Link>
             {usuario ? (
               <>
-                <span className="user-name">{usuario.nombre}</span>
+                <Link href="/perfil" onClick={cerrar} className="user-name">{usuario.nombre}</Link>
                 {usuario.rol === "ADMIN" && (
                   <>
                     <Link href="/admin/productos" onClick={cerrar}>Admin</Link>
+                    <Link href="/admin/reportes" onClick={cerrar}>Reportes</Link>
                     <Link href="/admin/configuracion" onClick={cerrar}>Configurar sitio</Link>
                   </>
                 )}

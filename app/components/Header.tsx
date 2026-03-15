@@ -61,10 +61,11 @@ export async function Header() {
           <Link href="/pedidos">Mis pedidos</Link>
           {usuario ? (
             <>
-              <span className="user-name">{usuario.nombre}</span>
+              <Link href="/perfil" className="user-name">{usuario.nombre}</Link>
               {usuario.rol === "ADMIN" && (
                 <>
                   <Link href="/admin/productos">Admin</Link>
+                  <Link href="/admin/reportes">Reportes</Link>
                   <Link href="/admin/configuracion">Configurar sitio</Link>
                 </>
               )}
