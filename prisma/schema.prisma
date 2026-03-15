@@ -41,6 +41,7 @@ model Usuario {
   pedidos        Pedido[]
   favoritos      Favorito[]
   documento        String?
+  telefono         String?
   departamento     String?
   municipio        String?
   direccionEnvio   String?

@@ -13,6 +13,7 @@ export default async function PerfilPage() {
       nombre: true,
       email: true,
       documento: true,
+      telefono: true,
       departamento: true,
       municipio: true,
       direccionEnvio: true,

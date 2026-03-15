@@ -6,6 +6,7 @@ import { actualizarPerfil } from "@/app/actions/perfil";
 
 type UsuarioPerfil = {
   documento: string | null;
+  telefono: string | null;
   departamento: string | null;
   municipio: string | null;
   direccionEnvio: string | null;
@@ -38,20 +39,33 @@ export function FormPerfil({ usuario }: { usuario: UsuarioPerfil }) {
   return (
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className="form-group">
-        <label>Número de documento</label>
+        <label>Número de documento *</label>
         <input
           name="documento"
           defaultValue={usuario.documento ?? ""}
           placeholder="Cédula, pasaporte, etc."
+          required
         />
       </div>
 
       <div className="form-group">
-        <label>Departamento</label>
+        <label>Número de contacto *</label>
+        <input
+          name="telefono"
+          type="tel"
+          defaultValue={usuario.telefono ?? ""}
+          placeholder="Celular o teléfono de contacto"
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Departamento *</label>
         <select
           name="departamento"
           value={departamento}
           onChange={(e) => { setDepartamento(e.target.value); setMunicipio(""); }}
+          required
         >
           <option value="">Seleccionar departamento...</option>
           {COLOMBIA.map((d) => (
@@ -63,12 +77,13 @@ export function FormPerfil({ usuario }: { usuario: UsuarioPerfil }) {
       </div>
 
       <div className="form-group">
-        <label>Municipio</label>
+        <label>Municipio *</label>
         <select
           name="municipio"
           value={municipio}
           onChange={(e) => setMunicipio(e.target.value)}
           disabled={!departamento}
+          required
         >
           <option value="">Seleccionar municipio...</option>
           {municipios.map((m) => (
@@ -78,11 +93,12 @@ export function FormPerfil({ usuario }: { usuario: UsuarioPerfil }) {
       </div>
 
       <div className="form-group">
-        <label>Dirección de envío</label>
+        <label>Dirección de envío *</label>
         <input
           name="direccionEnvio"
           defaultValue={usuario.direccionEnvio ?? ""}
           placeholder="Calle, carrera, número, barrio..."
+          required
         />
       </div>
 
@@ -91,7 +107,7 @@ export function FormPerfil({ usuario }: { usuario: UsuarioPerfil }) {
         <input
           name="complemento"
           defaultValue={usuario.complemento ?? ""}
-          placeholder="Apto, torre, piso, referencia..."
+          placeholder="Apto, torre, piso, referencia... (opcional)"
         />
       </div>
 

@@ -50,6 +50,8 @@ type PedidoEmail = {
   total: number;
   metodoPago: string;
   direccionEnvio?: string;
+  documento?: string;
+  telefono?: string;
   lineas: LineaPedidoEmail[];
 };
 
@@ -80,6 +82,8 @@ export async function enviarNotificacionAdminPedido(
       ${emailHeader(nombre, "#22c55e", logoUrl, `Nueva venta recibida — Pedido #${pedido.id.slice(-8)}`)}
       <div style="padding:20px;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px">
         <p><strong>Cliente:</strong> ${nombreCliente} (${emailCliente})</p>
+        ${pedido.documento ? `<p><strong>Documento:</strong> ${pedido.documento}</p>` : ""}
+        ${pedido.telefono ? `<p><strong>Contacto:</strong> ${pedido.telefono}</p>` : ""}
         <p><strong>Método de pago:</strong> ${pedido.metodoPago}</p>
         ${pedido.direccionEnvio ? `<p><strong>Dirección de envío:</strong> ${pedido.direccionEnvio}</p>` : ""}
         <table style="width:100%;border-collapse:collapse;margin:16px 0">

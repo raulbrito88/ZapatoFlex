@@ -129,7 +129,7 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
   // Enviar emails — await con Promise.allSettled para garantizar envío en Vercel
   const usuario = await prisma.usuario.findUnique({
     where: { id: usuarioId },
-    select: { email: true, nombre: true, direccionEnvio: true, complemento: true, municipio: true, departamento: true },
+    select: { email: true, nombre: true, documento: true, telefono: true, direccionEnvio: true, complemento: true, municipio: true, departamento: true },
   });
   if (usuario) {
     const direccion = [
@@ -144,6 +144,8 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
       total: pedido.total,
       metodoPago: "CONTRAENTREGA",
       direccionEnvio: direccion,
+      documento: usuario.documento ?? undefined,
+      telefono: usuario.telefono ?? undefined,
       lineas: carrito.items.map((i) => ({
         nombre: i.producto.nombre,
         talla: i.talla,
