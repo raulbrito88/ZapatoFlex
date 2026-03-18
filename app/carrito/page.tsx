@@ -4,6 +4,16 @@ import { prisma } from "@/lib/db";
 import { CarritoActions } from "./carrito-actions";
 import { CheckoutBtn } from "./checkout-btn";
 
+type CampoPerfil = "documento" | "telefono" | "departamento" | "municipio" | "direccionEnvio";
+
+const CAMPOS_REQUERIDOS: { campo: CampoPerfil; etiqueta: string }[] = [
+  { campo: "documento",      etiqueta: "Número de documento" },
+  { campo: "telefono",       etiqueta: "Número de contacto" },
+  { campo: "departamento",   etiqueta: "Departamento" },
+  { campo: "municipio",      etiqueta: "Municipio" },
+  { campo: "direccionEnvio", etiqueta: "Dirección de envío" },
+];
+
 export default async function CarritoPage() {
   const usuario = await obtenerUsuarioActual();
   if (!usuario) {
@@ -13,6 +23,17 @@ export default async function CarritoPage() {
       </div>
     );
   }
+
+  const perfil = await prisma.usuario.findUnique({
+    where: { id: usuario.id },
+    select: { nombre: true, documento: true, telefono: true, departamento: true, municipio: true, direccionEnvio: true, complemento: true },
+  });
+
+  const camposFaltantes = CAMPOS_REQUERIDOS.filter(
+    ({ campo }) => !perfil?.[campo]
+  ).map(({ etiqueta }) => etiqueta);
+
+  const perfilCompleto = camposFaltantes.length === 0;
 
   const carrito = await prisma.carrito.findUnique({
     where: { usuarioId: usuario.id },
@@ -64,7 +85,11 @@ export default async function CarritoPage() {
       <div className="carrito-total">
         Total: ${total.toLocaleString("es-CO")}
       </div>
-      <CheckoutBtn />
+      <CheckoutBtn
+        perfilCompleto={perfilCompleto}
+        camposFaltantes={camposFaltantes}
+        perfil={perfil ?? null}
+      />
     </div>
   );
 }
