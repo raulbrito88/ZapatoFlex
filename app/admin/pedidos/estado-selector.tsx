@@ -47,7 +47,7 @@ export function EstadoSelector({ pedidoId, estadoPedido, estadoPago }: Props) {
           disabled={pendingPedido}
           onChange={(e) => {
             const v = e.target.value;
-            startPedido(() => actualizarEstadoPedido(pedidoId, v));
+            startPedido(() => void actualizarEstadoPedido(pedidoId, v));
           }}
         >
           {ESTADOS_PEDIDO.map((o) => (
@@ -65,7 +65,7 @@ export function EstadoSelector({ pedidoId, estadoPedido, estadoPago }: Props) {
             disabled={pendingPago}
             onChange={(e) => {
               const v = e.target.value;
-              startPago(() => actualizarEstadoPago(pedidoId, v));
+              startPago(() => void actualizarEstadoPago(pedidoId, v));
             }}
           >
             {ESTADOS_PAGO.map((o) => (
