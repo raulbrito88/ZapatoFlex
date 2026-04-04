@@ -4,7 +4,6 @@
  */
 import { readFileSync } from "fs";
 import { defineConfig } from "prisma/config";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 // Prisma CLI no carga .env.local automáticamente (Next.js sí lo hace en runtime).
 // Este bloque lo carga manualmente para los comandos de consola.
@@ -25,13 +24,5 @@ export default defineConfig({
   schema: "./prisma/schema.prisma",
   datasource: {
     url: process.env.TURSO_DATABASE_URL!,
-  },
-  migrate: {
-    async adapter() {
-      return new PrismaLibSql({
-        url: process.env.TURSO_DATABASE_URL!,
-        authToken: process.env.TURSO_AUTH_TOKEN || undefined,
-      });
-    },
   },
 });
