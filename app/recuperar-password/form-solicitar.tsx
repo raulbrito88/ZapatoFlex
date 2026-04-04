@@ -1,10 +1,10 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { solicitarReset } from "@/app/actions/recuperar-password";
 
 export function FormSolicitarReset() {
-  const [state, formAction] = useFormState(solicitarReset, null);
+  const [state, formAction] = useActionState(solicitarReset, null);
 
   if (state?.success) {
     return <p className="form-success">{state.success}</p>;

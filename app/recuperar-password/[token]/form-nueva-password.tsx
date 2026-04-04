@@ -1,10 +1,10 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { restablecerPassword } from "@/app/actions/recuperar-password";
 
 export function FormNuevaPassword({ token }: { token: string }) {
-  const [state, formAction] = useFormState(restablecerPassword, null);
+  const [state, formAction] = useActionState(restablecerPassword, null);
 
   return (
     <form action={formAction}>

@@ -43,6 +43,7 @@ type LineaPedidoEmail = {
   talla: string | null;
   cantidad: number;
   precioUnitario: number;
+  imagenUrl?: string | null;
 };
 
 type PedidoEmail = {
@@ -69,7 +70,10 @@ export async function enviarNotificacionAdminPedido(
     .map(
       (l) =>
         `<tr>
-          <td style="padding:8px;border-bottom:1px solid #eee">${l.nombre}</td>
+          <td style="padding:8px;border-bottom:1px solid #eee">
+            ${l.imagenUrl ? `<img src="${l.imagenUrl}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:8px;display:inline-block">` : ""}
+            <span style="vertical-align:middle">${l.nombre}</span>
+          </td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.talla || "-"}</td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.cantidad}</td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${(l.precioUnitario * l.cantidad).toLocaleString("es-CO")}</td>
@@ -133,7 +137,10 @@ export async function enviarConfirmacionPedido(
     .map(
       (l) =>
         `<tr>
-          <td style="padding:8px;border-bottom:1px solid #eee">${l.nombre}</td>
+          <td style="padding:8px;border-bottom:1px solid #eee">
+            ${l.imagenUrl ? `<img src="${l.imagenUrl}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:8px;display:inline-block">` : ""}
+            <span style="vertical-align:middle">${l.nombre}</span>
+          </td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.talla || "-"}</td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.cantidad}</td>
           <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${(l.precioUnitario * l.cantidad).toLocaleString("es-CO")}</td>
@@ -181,6 +188,70 @@ export async function enviarConfirmacionPedido(
     console.log("[Email] Confirmación enviada a", destinatario);
   } catch (error) {
     console.error("[Email] Error al enviar confirmación:", error);
+  }
+}
+
+const MENSAJES_ESTADO_PEDIDO: Record<string, { titulo: string; mensaje: string; color: string }> = {
+  CONFIRMADO: { titulo: "Pedido confirmado", mensaje: "Tu pedido ha sido confirmado y está siendo procesado.", color: "#6366f1" },
+  ENVIADO:    { titulo: "¡Tu pedido está en camino!", mensaje: "Tu pedido ha sido enviado. Pronto llegará a tu dirección.", color: "#f59e0b" },
+  ENTREGADO:  { titulo: "Pedido entregado", mensaje: "Tu pedido fue marcado como entregado. ¡Gracias por tu compra!", color: "#22c55e" },
+  CANCELADO:  { titulo: "Pedido cancelado", mensaje: "Tu pedido ha sido cancelado. Si tienes alguna pregunta, no dudes en contactarnos.", color: "#ef4444" },
+  PENDIENTE:  { titulo: "Pedido en espera", mensaje: "Tu pedido está pendiente de procesamiento.", color: "#6366f1" },
+};
+
+const MENSAJES_ESTADO_PAGO: Record<string, { titulo: string; mensaje: string; color: string }> = {
+  SIMULADO:  { titulo: "Pago registrado", mensaje: "Tu pago ha sido registrado y está pendiente de cobro al momento de la entrega.", color: "#f59e0b" },
+  APROBADO:  { titulo: "Pago aprobado", mensaje: "Tu pago ha sido aprobado. ¡Gracias por tu compra!", color: "#22c55e" },
+  PENDIENTE: { titulo: "Pago pendiente", mensaje: "Tu pago está pendiente de procesamiento.", color: "#6366f1" },
+};
+
+export async function enviarNotificacionEstado(
+  destinatario: string,
+  nombreCliente: string,
+  pedidoId: string,
+  tipo: "pedido" | "pago",
+  nuevoEstado: string
+): Promise<void> {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+
+  const mensajes = tipo === "pedido" ? MENSAJES_ESTADO_PEDIDO : MENSAJES_ESTADO_PAGO;
+  const info = mensajes[nuevoEstado];
+  if (!info) return;
+
+  const { nombre, logoUrl } = await obtenerConfigSitio();
+
+  const tipoLabel = tipo === "pedido" ? "estado del pedido" : "estado del pago";
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333">
+      ${emailHeader(nombre, info.color, logoUrl, info.titulo)}
+      <div style="padding:24px;border:1px solid #eee;border-top:none;border-radius:0 0 8px 8px">
+        <p>Hola <strong>${nombreCliente}</strong>,</p>
+        <p>${info.mensaje}</p>
+        <div style="background:#f9f9f9;border-radius:6px;padding:12px 16px;margin:20px 0">
+          <p style="margin:0;font-size:13px;color:#666">Pedido <strong>#${pedidoId.slice(-8)}</strong></p>
+          <p style="margin:4px 0 0;font-size:14px">
+            <strong>${tipo === "pedido" ? "Estado del pedido" : "Estado del pago"}:</strong>
+            <span style="color:${info.color};font-weight:bold;margin-left:6px">${nuevoEstado.charAt(0) + nuevoEstado.slice(1).toLowerCase()}</span>
+          </p>
+        </div>
+        <hr style="border:none;border-top:1px solid #eee;margin:20px 0"/>
+        <p style="color:#999;font-size:12px;text-align:center">
+          ${nombre} — Si tienes preguntas sobre tu ${tipoLabel}, contáctanos.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"${nombre}" <${process.env.SMTP_USER}>`,
+      to: destinatario,
+      subject: `${info.titulo} — Pedido #${pedidoId.slice(-8)}`,
+      html,
+    });
+    console.log(`[Email] Notificación de ${tipo} enviada a`, destinatario);
+  } catch (error) {
+    console.error(`[Email] Error al enviar notificación de ${tipo}:`, error);
   }
 }
 

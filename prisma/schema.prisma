@@ -2,13 +2,11 @@
 // Base de datos SQLite para prototipo (producción: PostgreSQL en Vercel/Turso)
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 enum Rol {

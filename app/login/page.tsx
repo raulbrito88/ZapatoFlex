@@ -2,11 +2,12 @@ import Link from "next/link";
 import { iniciarSesion } from "@/app/actions/auth";
 import { FormLogin } from "./form-login";
 
-export default function LoginPage({
-  searchParams,
+export default async function LoginPage({
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: { reset?: string };
+  searchParams: Promise<{ reset?: string }>;
 }) {
+  const searchParams = await searchParamsPromise;
   return (
     <div className="container" style={{ maxWidth: 400, margin: "0 auto" }}>
       <h1>Iniciar sesión</h1>

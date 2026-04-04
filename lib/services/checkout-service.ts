@@ -146,12 +146,20 @@ export async function ejecutarCheckout(usuarioId: string): Promise<CheckoutResul
       direccionEnvio: direccion,
       documento: usuario.documento ?? undefined,
       telefono: usuario.telefono ?? undefined,
-      lineas: carrito.items.map((i) => ({
-        nombre: i.producto.nombre,
-        talla: i.talla,
-        cantidad: i.cantidad,
-        precioUnitario: i.producto.precio,
-      })),
+      lineas: carrito.items.map((i) => {
+        let imagenUrl: string | null = null;
+        try {
+          const imgs = JSON.parse((i.producto as any).imagenes || "[]");
+          if (Array.isArray(imgs) && imgs.length > 0) imagenUrl = imgs[0];
+        } catch { /* sin imagen */ }
+        return {
+          nombre: i.producto.nombre,
+          talla: i.talla,
+          cantidad: i.cantidad,
+          precioUnitario: i.producto.precio,
+          imagenUrl,
+        };
+      }),
     };
     await Promise.allSettled([
       enviarConfirmacionPedido(usuario.email, usuario.nombre, datosPedido),

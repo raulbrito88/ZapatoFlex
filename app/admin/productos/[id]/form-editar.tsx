@@ -184,7 +184,7 @@ export function FormEditarProducto({
       <div className="form-group">
         <label>Género</label>
         <select name="generoId" defaultValue={producto.generoId ?? ""}>
-          <option value="">Todos</option>
+          <option value="">Sin especificar</option>
           {generos.map((g) => (
             <option key={g.id} value={g.id}>{g.label}</option>
           ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { actualizarEstadoPedido, actualizarEstadoPago } from "@/app/actions/admin-pedidos";
 
 const ESTADOS_PEDIDO = [
@@ -37,18 +37,25 @@ export function EstadoSelector({ pedidoId, estadoPedido, estadoPago }: Props) {
   const [pendingPedido, startPedido] = useTransition();
   const [pendingPago, startPago] = useTransition();
 
+  const [selPedido, setSelPedido] = useState(estadoPedido);
+  const [selPago, setSelPago] = useState(estadoPago ?? "");
+
+  // Sincronizar cuando el servidor re-renderiza con valores actualizados
+  useEffect(() => { setSelPedido(estadoPedido); }, [estadoPedido]);
+  useEffect(() => { setSelPago(estadoPago ?? ""); }, [estadoPago]);
+
+  const pedidoCambiado = selPedido !== estadoPedido;
+  const pagoCambiado = selPago !== (estadoPago ?? "");
+
   return (
     <div className="estado-selector-row">
       <label className="estado-selector-label">
         <span>Pedido</span>
         <select
-          className={`estado-select badge ${BADGE[estadoPedido] ?? ""}`}
-          defaultValue={estadoPedido}
+          className={`estado-select badge ${BADGE[selPedido] ?? ""}`}
+          value={selPedido}
           disabled={pendingPedido}
-          onChange={(e) => {
-            const v = e.target.value;
-            startPedido(() => void actualizarEstadoPedido(pedidoId, v));
-          }}
+          onChange={(e) => setSelPedido(e.target.value)}
         >
           {ESTADOS_PEDIDO.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -56,17 +63,35 @@ export function EstadoSelector({ pedidoId, estadoPedido, estadoPago }: Props) {
         </select>
       </label>
 
+      {pedidoCambiado && (
+        <div className="estado-confirm-btns">
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={pendingPedido}
+            onClick={() => startPedido(() => void actualizarEstadoPedido(pedidoId, selPedido))}
+          >
+            {pendingPedido ? "Guardando..." : "Confirmar"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            disabled={pendingPedido}
+            onClick={() => setSelPedido(estadoPedido)}
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+
       {estadoPago !== undefined && (
         <label className="estado-selector-label">
           <span>Pago</span>
           <select
-            className={`estado-select badge ${BADGE[estadoPago] ?? ""}`}
-            defaultValue={estadoPago}
+            className={`estado-select badge ${BADGE[selPago] ?? ""}`}
+            value={selPago}
             disabled={pendingPago}
-            onChange={(e) => {
-              const v = e.target.value;
-              startPago(() => void actualizarEstadoPago(pedidoId, v));
-            }}
+            onChange={(e) => setSelPago(e.target.value)}
           >
             {ESTADOS_PAGO.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -75,8 +100,25 @@ export function EstadoSelector({ pedidoId, estadoPedido, estadoPago }: Props) {
         </label>
       )}
 
-      {(pendingPedido || pendingPago) && (
-        <span className="text-muted" style={{ fontSize: "0.8rem" }}>Guardando...</span>
+      {estadoPago !== undefined && pagoCambiado && (
+        <div className="estado-confirm-btns">
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={pendingPago}
+            onClick={() => startPago(() => void actualizarEstadoPago(pedidoId, selPago))}
+          >
+            {pendingPago ? "Guardando..." : "Confirmar"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            disabled={pendingPago}
+            onClick={() => setSelPago(estadoPago ?? "")}
+          >
+            Cancelar
+          </button>
+        </div>
       )}
     </div>
   );

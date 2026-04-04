@@ -490,6 +490,12 @@ label {
   -webkit-appearance: none;
 }
 
+.estado-confirm-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 /* Grid productos */
 .grid-productos {
   display: grid;
@@ -680,6 +686,8 @@ label {
   padding: 1.25rem;
   margin-bottom: 1.5rem;
   transition: background 0.3s, border-color 0.3s;
+  position: relative;
+  z-index: 100;
 }
 
 .search-top-row {
@@ -1172,4 +1180,281 @@ label {
   padding: 0.25rem 0.4rem;
   text-align: center;
   font-size: 0.85rem;
+}
+
+/* ── MultiSelect ──────────────────────────────────────────────────────────── */
+
+.filtros-cascade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem 0 0.5rem;
+  align-items: start;
+}
+
+.ms-wrapper {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+.ms-wrapper-open {
+  z-index: 200;
+}
+
+.ms-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.ms-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0.4rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.ms-control:hover {
+  border-color: var(--accent);
+}
+
+.ms-control.ms-open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.ms-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.ms-disabled .ms-control {
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.ms-placeholder {
+  color: var(--muted);
+  font-size: 0.875rem;
+  flex: 1;
+}
+
+.ms-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.ms-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  padding: 0.15rem 0.5rem 0.15rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.ms-tag-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.ms-tag-remove:hover {
+  opacity: 1;
+}
+
+.ms-arrow {
+  color: var(--muted);
+  font-size: 0.65rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.ms-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ms-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.1s;
+}
+
+.ms-option:hover {
+  background: var(--accent-soft);
+}
+
+.ms-option-checked {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.ms-option input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Tienda: layout dos columnas ─────────────────────────────────────────── */
+
+.tienda-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-top: 0.5rem;
+}
+
+.tienda-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.tienda-grid-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.tienda-grid-area .grid-productos {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.sidebar-filtros-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.sidebar-filtros-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-filtros-titulo {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-filtros-limpiar {
+  font-size: 0.8rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 500;
+}
+
+.sidebar-filtros-limpiar:hover {
+  text-decoration: underline;
+}
+
+.sidebar-filtros-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Botón toggle solo visible en mobile */
+.sidebar-mobile-toggle {
+  display: none;
+}
+
+/* ── Sidebar responsive (tablet y mobile) ────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .tienda-layout {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .tienda-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .sidebar-mobile-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sidebar-mobile-toggle.tiene-filtros {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .sidebar-filtros-panel {
+    display: none;
+    margin-top: 0.5rem;
+  }
+
+  .sidebar-filtros-panel.abierto {
+    display: block;
+  }
+
+  .tienda-grid-area .grid-productos {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 }

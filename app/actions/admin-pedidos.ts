@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { obtenerUsuarioActual } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { enviarNotificacionEstado } from "@/lib/services/email-service";
 
 export async function actualizarEstadoPedido(pedidoId: string, nuevoEstado: string) {
   const usuario = await obtenerUsuarioActual();
@@ -13,6 +14,7 @@ export async function actualizarEstadoPedido(pedidoId: string, nuevoEstado: stri
     where: { id: pedidoId },
     select: {
       estado: true,
+      usuario: { select: { email: true, nombre: true } },
       lineas: {
         select: {
           cantidad: true,
@@ -53,6 +55,17 @@ export async function actualizarEstadoPedido(pedidoId: string, nuevoEstado: stri
     data: { estado: nuevoEstado },
   });
 
+  // Notificar al comprador
+  if (pedido.usuario?.email) {
+    void enviarNotificacionEstado(
+      pedido.usuario.email,
+      pedido.usuario.nombre,
+      pedidoId,
+      "pedido",
+      nuevoEstado
+    );
+  }
+
   revalidatePath("/admin/pedidos");
   return { success: true };
 }
@@ -61,10 +74,26 @@ export async function actualizarEstadoPago(pedidoId: string, estado: string) {
   const usuario = await obtenerUsuarioActual();
   if (!usuario || usuario.rol !== "ADMIN") return { error: "No autorizado" };
 
+  const pedido = await (prisma.pedido as any).findUnique({
+    where: { id: pedidoId },
+    select: { usuario: { select: { email: true, nombre: true } } },
+  });
+
   await (prisma.pago as any).update({
     where: { pedidoId },
     data: { estado },
   });
+
+  // Notificar al comprador
+  if (pedido?.usuario?.email) {
+    void enviarNotificacionEstado(
+      pedido.usuario.email,
+      pedido.usuario.nombre,
+      pedidoId,
+      "pago",
+      estado
+    );
+  }
 
   revalidatePath("/admin/pedidos");
   return { success: true };

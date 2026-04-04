@@ -7,14 +7,12 @@ export async function GET(req: NextRequest) {
       .split(",")
       .filter(Boolean);
 
-    const generos = await prisma.genero.findMany({
-      where: categoriaIds.length
-        ? { productos: { some: { categoriaId: { in: categoriaIds } } } }
-        : undefined,
+    const subcategorias = await prisma.subcategoria.findMany({
+      where: categoriaIds.length ? { categoriaId: { in: categoriaIds } } : undefined,
       orderBy: { nombre: "asc" },
       select: { id: true, nombre: true },
     });
-    return NextResponse.json(generos);
+    return NextResponse.json(subcategorias);
   } catch {
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }

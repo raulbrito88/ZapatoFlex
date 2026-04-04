@@ -25,13 +25,14 @@ export type ProductoCompleto = Producto & {
 };
 
 export type FiltrosProducto = {
-  categoriaId?: string;
-  generoId?: string;
-  talla?: string;
+  categoriaIds?: string[];
+  generoIds?: string[];
+  subcategoriaIds?: string[];
+  marcaIds?: string[];
+  colorIds?: string[];
+  tallas?: string[];
   precioMin?: number;
   precioMax?: number;
-  marca?: string;
-  color?: string;
   busqueda?: string;
 };
 
@@ -51,21 +52,24 @@ export const productoRepository: IProductoRepository = {
   async findMany(filtros = {}) {
     const where: Prisma.ProductoWhereInput = {};
 
-    if (filtros.categoriaId) {
-      where.categoriaId = filtros.categoriaId;
+    if (filtros.categoriaIds?.length) {
+      where.categoriaId = { in: filtros.categoriaIds };
     }
-    if (filtros.generoId) {
-      where.generoId = filtros.generoId;
+    if (filtros.generoIds?.length) {
+      where.generoId = { in: filtros.generoIds };
     }
-    if (filtros.marca) {
-      where.marca = { nombre: { contains: filtros.marca } };
+    if (filtros.subcategoriaIds?.length) {
+      where.subcategoriaId = { in: filtros.subcategoriaIds };
     }
-    if (filtros.color) {
-      where.color = { nombre: { contains: filtros.color } };
+    if (filtros.marcaIds?.length) {
+      where.marcaId = { in: filtros.marcaIds };
     }
-    if (filtros.talla) {
+    if (filtros.colorIds?.length) {
+      where.colorId = { in: filtros.colorIds };
+    }
+    if (filtros.tallas?.length) {
       where.variantes = {
-        some: { talla: { valor: filtros.talla }, stock: { gt: 0 } },
+        some: { talla: { valor: { in: filtros.tallas } }, stock: { gt: 0 } },
       };
     }
     if (filtros.busqueda) {

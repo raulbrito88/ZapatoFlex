@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { iniciarSesion } from "@/app/actions/auth";
 
 function form(state: { error?: string } | null, formData: FormData) {
@@ -8,7 +8,7 @@ function form(state: { error?: string } | null, formData: FormData) {
 }
 
 export function FormLogin({ action }: { action: typeof iniciarSesion }) {
-  const [state, formAction] = useFormState(form, null);
+  const [state, formAction] = useActionState(form, null);
 
   return (
     <form action={formAction}>
