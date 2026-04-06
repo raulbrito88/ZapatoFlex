@@ -76,7 +76,6 @@ export const productoRepository: IProductoRepository = {
       where.OR = [
         { nombre: { contains: filtros.busqueda } },
         { descripcion: { contains: filtros.busqueda } },
-        { marca: { nombre: { contains: filtros.busqueda } } },
       ];
     }
     if (filtros.precioMin != null || filtros.precioMax != null) {

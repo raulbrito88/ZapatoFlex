@@ -64,7 +64,7 @@ a:hover {
   padding: 0.75rem 0;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 300;
   backdrop-filter: blur(12px);
   transition: background 0.3s, border-color 0.3s;
 }
@@ -679,6 +679,101 @@ label {
 }
 
 /* Barra de búsqueda */
+.search-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-bar-row .search-input-wrapper {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.precio-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.input-precio {
+  width: 110px;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.input-precio:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.input-precio::-webkit-inner-spin-button,
+.input-precio::-webkit-outer-spin-button { -webkit-appearance: none; }
+.input-precio[type=number] { -moz-appearance: textfield; }
+
+.precio-separador {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.busqueda-btn {
+  flex-shrink: 0;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.busqueda-btn:hover { opacity: 0.85; }
+
+.busqueda-limpiar {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.65rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.busqueda-limpiar:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .search-bar-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .precio-inputs {
+    justify-content: stretch;
+    width: 100%;
+  }
+  .input-precio {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+  }
+}
+
 .search-bar {
   background: var(--surface);
   border: 1px solid var(--border);
