@@ -53,7 +53,7 @@ export function BarraBusqueda() {
             </svg>
             <input
               type="text"
-              placeholder="Buscar por nombre, marca o descripción..."
+              placeholder="Buscar por nombre del artículo..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
